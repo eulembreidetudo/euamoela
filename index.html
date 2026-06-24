@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eu te amo</title>
+
+  <style>
+    :root{
+      --paper:#ead7a8;
+      --paper-light:#f7e8bf;
+      --ink:#2d251b;
+      --line:rgba(65, 88, 104, .25);
+      --margin-line:rgba(122, 45, 35, .25);
+      --edge:rgba(70, 45, 20, .28);
+      --shadow:0 22px 65px rgba(44, 28, 12, .26);
+      --shadow-soft:0 14px 34px rgba(44, 28, 12, .20);
+      --tape:rgba(255, 246, 220, .74);
+    }
+
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      min-height:100vh;
+      font-family:Georgia, "Times New Roman", serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 14% 9%, rgba(62, 51, 33, .13), transparent 24%),
+        radial-gradient(circle at 82% 13%, rgba(124, 103, 66, .16), transparent 29%),
+        radial-gradient(circle at 42% 96%, rgba(235, 222, 184, .28), transparent 38%),
+        linear-gradient(135deg, #7d6a48 0%, #d8c79b 50%, #8d7a54 100%);
+      overflow-x:hidden;
+    }
+
+    body.locked{
+      overflow:hidden;
+    }
+
+    ::selection{
+      color:#f8e6b8;
+      background:#392616;
+    }
+
+    .texture,
+    .lines,
+    .vignette,
+    .float-layer{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+    }
+
+    .texture{
+      z-index:0;
+      opacity:.72;
+      background:
+        radial-gradient(circle, rgba(74, 44, 16, .10) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255, 240, 198, .16) 0 1.5px, transparent 2px);
+      background-size:52px 52px, 83px 83px;
+      background-position:0 0, 18px 26px;
+      mix-blend-mode:multiply;
+    }
+
+    .lines{
+      z-index:0;
+      opacity:.20;
+      background:
+        linear-gradient(90deg, transparent 0 72px, var(--margin-line) 73px 75px, transparent 76px),
+        repeating-linear-gradient(to bottom, transparent 0 30px, var(--line) 31px 32px);
+      mask-image:linear-gradient(to bottom, transparent, black 9%, black 88%, transparent);
+    }
+
+    .vignette{
+      z-index:1;
+      background:
+        radial-gradient(circle at center, transparent 50%, rgba(58, 34, 14, .22) 100%),
+        linear-gradient(90deg, rgba(62, 38, 15, .14), transparent 12%, transparent 88%, rgba(62, 38, 15, .14));
+    }
+
+    .cursor-glow{
+      position:fixed;
+      width:180px;
+      height:180px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255, 241, 188, .22), transparent 70%);
+      pointer-events:none;
+      z-index:2;
+      transform:translate(-50%, -50%);
+      display:none;
+    }
+
+    @media (pointer:fine){
+      .cursor-glow{ display:block; }
+    }
+
+    .float-layer{
+      z-index:2;
+      overflow:hidden;
+    }
+
+    .floaty{
+      position:absolute;
+      bottom:-70px;
+      opacity:0;
+      color:rgba(58, 38, 18, .16);
+      font-family:"Courier New", monospace;
+      animation:floatUp linear infinite;
+    }
+
+    @keyframes floatUp{
+      0%{ transform:translateY(0) rotate(0deg); opacity:0; }
+      18%{ opacity:.50; }
+      80%{ opacity:.38; }
+      100%{ transform:translateY(-112vh) rotate(210deg); opacity:0; }
+    }
+
+    .intro{
+      position:fixed;
+      inset:0;
+      z-index:40;
+      display:grid;
+      place-items:center;
+      padding:22px;
+      background:
+        radial-gradient(circle at 50% 8%, rgba(246, 236, 202, .30), transparent 34%),
+        linear-gradient(135deg, #6f6042 0%, #d8c79b 52%, #766747 100%);
+      transition:opacity .85s ease, visibility .85s ease, transform .85s ease;
+      cursor:pointer;
+    }
+
+    .intro.hidden{
+      opacity:0;
+      visibility:hidden;
+      transform:scale(1.02);
+      pointer-events:none;
+    }
+
+    .intro-scene{
+      position:relative;
+      width:min(390px, 86vw);
+      height:285px;
+      perspective:1000px;
+      outline:none;
+    }
+
+    .intro-shadow{
+      position:absolute;
+      left:50%;
+      bottom:8px;
+      width:78%;
+      height:34px;
+      border-radius:50%;
+      background:rgba(42, 25, 10, .30);
+      filter:blur(18px);
+      transform:translateX(-50%);
+      transition:.7s ease;
+    }
+
+    .paper-stack{
+      position:absolute;
+      left:50%;
+      top:50%;
+      width:330px;
+      max-width:82vw;
+      height:230px;
+      transform:translate(-50%, -50%) rotate(-2deg);
+      transform-style:preserve-3d;
+      filter:drop-shadow(0 24px 44px rgba(42, 25, 10, .26));
+      animation:idlePaper 3.1s ease-in-out infinite;
+      transition:transform .75s cubic-bezier(.2,.8,.2,1), opacity .75s ease;
+    }
+
+    @keyframes idlePaper{
+      0%,100%{ translate:0 0; rotate:0deg; }
+      50%{ translate:0 -7px; rotate:1deg; }
+    }
+
+    .intro:hover .paper-stack,
+    .intro-scene:focus-visible .paper-stack{
+      transform:translate(-50%, -50%) rotate(.5deg) translateY(-8px);
+    }
+
+    .paper-layer{
+      position:absolute;
+      inset:0;
+      border:1px solid rgba(53, 34, 15, .28);
+      background:
+        linear-gradient(90deg, transparent 0 48px, rgba(122,45,35,.22) 49px 51px, transparent 52px),
+        repeating-linear-gradient(to bottom, rgba(247,232,191,.98) 0 30px, rgba(65,88,104,.20) 31px 32px),
+        linear-gradient(135deg, #f7e8bf, #d7b878);
+      box-shadow:inset 0 0 42px rgba(90, 55, 20, .10);
+      transform-origin:left center;
+      transition:transform .9s cubic-bezier(.2,.8,.2,1), opacity .7s ease;
+    }
+
+    .paper-layer.back{
+      transform:translate(11px, 12px) rotate(2.5deg);
+      opacity:.72;
+    }
+
+    .paper-layer.mid{
+      transform:translate(5px, 6px) rotate(.8deg);
+      opacity:.86;
+    }
+
+    .paper-layer.front{
+      z-index:3;
+    }
+
+    .paper-layer.front:before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-13px;
+      width:116px;
+      height:30px;
+      transform:translateX(-50%) rotate(3deg);
+      background:var(--tape);
+      border:1px solid rgba(75, 48, 22, .12);
+      z-index:3;
+    }
+
+    .paper-layer.front:after{
+      content:"";
+      position:absolute;
+      inset:24px;
+      border:1px dashed rgba(70, 45, 20, .22);
+      opacity:.58;
+    }
+
+    .intro-counter{
+      position:absolute;
+      left:50%;
+      top:50%;
+      z-index:5;
+      width:min(250px, 70vw);
+      transform:translate(-50%, -50%);
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:8px;
+      color:#322416;
+      font-family:"Courier New", monospace;
+      text-align:center;
+      opacity:.88;
+      transition:opacity .45s ease, transform .45s ease;
+    }
+
+    .intro-counter span{
+      display:block;
+      padding:9px 5px 7px;
+      background:rgba(255, 244, 211, .34);
+      border:1px solid rgba(62, 39, 18, .18);
+      box-shadow:inset 0 -1px 0 rgba(62, 39, 18, .10);
+    }
+
+    .intro-counter strong{
+      display:block;
+      font-size:clamp(1rem, 4vw, 1.35rem);
+      line-height:1;
+      font-weight:700;
+      letter-spacing:-.04em;
+    }
+
+    .intro-counter small{
+      display:block;
+      margin-top:4px;
+      font-size:.58rem;
+      line-height:1;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      opacity:.72;
+    }
+
+    .intro-date{
+      position:absolute;
+      left:50%;
+      top:calc(50% + 53px);
+      z-index:5;
+      transform:translateX(-50%);
+      font:700 .72rem "Courier New", monospace;
+      color:rgba(50, 36, 22, .64);
+      letter-spacing:.08em;
+      transition:opacity .45s ease, transform .45s ease;
+    }
+
+    .intro.opening .intro-counter,
+    .intro.opening .intro-date{
+      opacity:0;
+      transform:translate(-50%, -50%) translateY(-8px);
+    }
+
+    .intro.opening .intro-date{
+      transform:translateX(-50%) translateY(-8px);
+    }
+
+
+    .corner{
+      position:absolute;
+      right:0;
+      top:0;
+      width:62px;
+      height:62px;
+      z-index:4;
+      background:
+        linear-gradient(135deg, rgba(82, 50, 19, .18), rgba(255, 244, 210, .80) 46%, rgba(255,255,255,0) 47%);
+      clip-path:polygon(0 0, 100% 0, 100% 100%);
+      transform-origin:100% 0;
+      animation:cornerPeek 2.2s ease-in-out infinite;
+    }
+
+    @keyframes cornerPeek{
+      0%,100%{ transform:rotate(0deg); opacity:.75; }
+      50%{ transform:rotate(-8deg); opacity:1; }
+    }
+
+    .intro.opening .paper-stack{
+      animation:none;
+      transform:translate(-50%, -50%) rotate(0deg) scale(1.04);
+    }
+
+    .intro.opening .paper-layer.front{
+      transform:rotateY(-64deg) translateX(-12px);
+      opacity:.35;
+    }
+
+    .intro.opening .paper-layer.mid{
+      transform:translate(1px, 1px) rotate(0deg) scale(1.05);
+    }
+
+    .intro.opening .paper-layer.back{
+      transform:translate(0, 0) rotate(0deg) scale(1.12);
+      opacity:.28;
+    }
+
+    .intro.opening .corner{
+      animation:none;
+      transform:rotate(-24deg);
+      opacity:0;
+    }
+
+    .intro.opening .intro-shadow{
+      transform:translateX(-50%) scale(.82);
+      opacity:.58;
+    }
+
+    .site{
+      position:relative;
+      z-index:3;
+      min-height:100vh;
+      opacity:0;
+      transform:translateY(18px);
+      pointer-events:none;
+      transition:opacity .9s ease, transform .9s ease;
+    }
+
+    .site.visible{
+      opacity:1;
+      transform:translateY(0);
+      pointer-events:auto;
+    }
+
+    .topbar{
+      position:fixed;
+      top:12px;
+      right:12px;
+      z-index:20;
+    }
+
+    .music-btn{
+      cursor:pointer;
+      width:40px;
+      height:34px;
+      border-radius:2px;
+      border:1px solid rgba(51, 34, 16, .30);
+      background:rgba(238, 213, 158, .72);
+      color:#332414;
+      font:700 .95rem "Courier New", monospace;
+      box-shadow:4px 4px 0 rgba(51,34,16,.13);
+      backdrop-filter:blur(10px);
+      transition:.22s ease;
+    }
+
+    .music-btn:hover{
+      transform:translate(-1px, -1px);
+      box-shadow:5px 5px 0 rgba(51,34,16,.13);
+    }
+
+    .page{
+      width:min(1180px, calc(100% - 12px));
+      margin:0 auto;
+      padding:54px 0 62px;
+    }
+
+    .sheet{
+      position:relative;
+      min-height:calc(100vh - 116px);
+      padding:clamp(18px, 3vw, 38px);
+      background:
+        linear-gradient(90deg, transparent 0 68px, var(--margin-line) 69px 71px, transparent 72px),
+        repeating-linear-gradient(to bottom, rgba(248, 233, 195, .98) 0 31px, var(--line) 32px 33px),
+        linear-gradient(135deg, #f7e8bd, #dcc085);
+      border:1px solid var(--edge);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .sheet:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 8%, rgba(88, 50, 15, .10), transparent 19%),
+        radial-gradient(circle at 92% 84%, rgba(88, 50, 15, .12), transparent 24%),
+        linear-gradient(90deg, rgba(87, 50, 17, .10), transparent 12%, transparent 88%, rgba(87, 50, 17, .10));
+      mix-blend-mode:multiply;
+      pointer-events:none;
+    }
+
+    .sheet:after{
+      content:"";
+      position:absolute;
+      left:20px;
+      top:24px;
+      bottom:24px;
+      width:18px;
+      background:
+        radial-gradient(circle, rgba(59, 38, 18, .22) 0 4px, transparent 4.7px);
+      background-size:18px 39px;
+      opacity:.60;
+      pointer-events:none;
+    }
+
+    .hero{
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:.92fr 1.08fr;
+      gap:26px;
+      align-items:center;
+      min-height:560px;
+    }
+
+    .text-block{
+      position:relative;
+      padding:8px 4px 8px 36px;
+    }
+
+    .text-block p{
+      margin:0 0 19px;
+      color:#43331f;
+      font-size:clamp(1rem, 1.75vw, 1.12rem);
+      line-height:1.92;
+      font-weight:600;
+      text-align:justify;
+    }
+
+    .quote{
+      position:relative;
+      margin-top:28px;
+      padding:14px 17px;
+      color:#302316;
+      background:rgba(255, 243, 207, .44);
+      border-left:3px solid rgba(62, 39, 18, .42);
+      font-family:"Courier New", monospace;
+      font-size:clamp(.98rem, 1.8vw, 1.06rem);
+      line-height:1.6;
+      box-shadow:inset 0 -1px 0 rgba(62, 39, 18, .12);
+    }
+
+    .photo-stack{
+      position:relative;
+      min-height:545px;
+    }
+
+    .card{
+      position:absolute;
+      width:min(250px, 45vw);
+      padding:9px 9px 35px;
+      background:#f5e7bd;
+      border:1px solid rgba(62, 39, 18, .23);
+      box-shadow:var(--shadow-soft);
+      transition:transform .28s ease, box-shadow .28s ease;
+      animation:floatCard 5.8s ease-in-out infinite;
+    }
+
+    .card:before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:-10px;
+      width:82px;
+      height:24px;
+      transform:translateX(-50%) rotate(-4deg);
+      background:var(--tape);
+      border:1px solid rgba(75,48,22,.11);
+      z-index:2;
+    }
+
+    .card:hover{
+      transform:translateY(-7px) rotate(0deg) scale(1.018) !important;
+      box-shadow:0 22px 54px rgba(44, 28, 12, .28);
+      z-index:8;
+    }
+
+    .card img{
+      display:block;
+      width:100%;
+      height:245px;
+      object-fit:cover;
+      background:#d9bd7e;
+      filter:sepia(.08) contrast(1.04) saturate(.95);
+      border:1px solid rgba(62, 39, 18, .12);
+    }
+
+    .card.one{ top:10px; left:4%; transform:rotate(-5deg); animation-delay:0s; }
+    .card.two{ top:82px; right:1%; transform:rotate(4deg); animation-delay:.7s; }
+    .card.three{ bottom:78px; left:0; transform:rotate(3deg); animation-delay:1.3s; }
+    .card.four{ bottom:12px; right:8%; transform:rotate(-4deg); animation-delay:2s; }
+
+    @keyframes floatCard{
+      0%,100%{ margin-top:0; }
+      50%{ margin-top:-9px; }
+    }
+
+    .single-row{
+      position:relative;
+      z-index:1;
+      margin-top:46px;
+      display:flex;
+      justify-content:center;
+    }
+
+    .wide-card{
+      position:relative;
+      width:min(790px, 100%);
+      padding:10px 10px 38px;
+      background:#f5e7bd;
+      border:1px solid rgba(62,39,18,.23);
+      box-shadow:var(--shadow-soft);
+      transform:rotate(-.8deg);
+      transition:.28s ease;
+    }
+
+    .wide-card:before,
+    .wide-card:after{
+      content:"";
+      position:absolute;
+      top:-11px;
+      width:100px;
+      height:27px;
+      background:var(--tape);
+      border:1px solid rgba(75,48,22,.11);
+      z-index:2;
+    }
+
+    .wide-card:before{
+      left:9%;
+      transform:rotate(-5deg);
+    }
+
+    .wide-card:after{
+      right:9%;
+      transform:rotate(5deg);
+    }
+
+    .wide-card:hover{
+      transform:rotate(0deg) translateY(-6px);
+      box-shadow:0 24px 58px rgba(44,28,12,.28);
+    }
+
+    .wide-card img{
+      display:block;
+      width:100%;
+      max-height:620px;
+      object-fit:cover;
+      background:#d9bd7e;
+      filter:sepia(.07) contrast(1.04) saturate(.96);
+      border:1px solid rgba(62,39,18,.12);
+    }
+
+    .important{
+      position:relative;
+      z-index:1;
+      margin:74px auto 0;
+      width:min(650px, 100%);
+      padding:12px 12px 42px;
+      background:#f5e7bd;
+      border:1px solid rgba(62,39,18,.25);
+      box-shadow:0 26px 80px rgba(44,28,12,.30);
+      transform:rotate(.6deg);
+      transition:.28s ease;
+    }
+
+    .important:before,
+    .important:after{
+      content:"";
+      position:absolute;
+      top:-12px;
+      width:115px;
+      height:29px;
+      background:var(--tape);
+      border:1px solid rgba(75,48,22,.11);
+      z-index:2;
+    }
+
+    .important:before{
+      left:8%;
+      transform:rotate(-7deg);
+    }
+
+    .important:after{
+      right:8%;
+      transform:rotate(6deg);
+    }
+
+    .important:hover{
+      transform:rotate(0deg) translateY(-6px);
+    }
+
+    .important img{
+      display:block;
+      width:100%;
+      max-height:820px;
+      object-fit:cover;
+      background:#d9bd7e;
+      filter:sepia(.05) contrast(1.03) saturate(.98);
+      border:1px solid rgba(62,39,18,.12);
+    }
+
+    .hidden-before-reveal{
+      opacity:0;
+      transform:translateY(18px);
+      transition:opacity .65s ease, transform .65s ease;
+    }
+
+    .hidden-before-reveal.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    @media (max-width: 900px){
+      .page{
+        width:calc(100% - 8px);
+        padding-top:46px;
+      }
+
+      .sheet{
+        padding:28px 16px;
+      }
+
+      .hero{
+        grid-template-columns:1fr;
+        gap:22px;
+      }
+
+      .text-block{
+        order:2;
+        padding:8px 8px 8px 28px;
+      }
+
+      .photo-stack{
+        order:1;
+        min-height:520px;
+      }
+
+      .card{
+        width:min(235px, 48vw);
+      }
+
+      .card img{
+        height:225px;
+      }
+    }
+
+    @media (max-width: 560px){
+      .page{
+        width:calc(100% - 4px);
+        padding-top:42px;
+        padding-bottom:42px;
+      }
+
+      .sheet{
+        min-height:auto;
+        padding:22px 10px 30px;
+      }
+
+      .sheet:after{
+        display:none;
+      }
+
+      .text-block{
+        padding:6px 4px 6px 8px;
+      }
+
+      .text-block p{
+        text-align:left;
+        line-height:1.82;
+      }
+
+      .quote{
+        font-size:.92rem;
+      }
+
+      .photo-stack{
+        min-height:492px;
+      }
+
+      .card{
+        width:47vw;
+        padding:7px 7px 28px;
+      }
+
+      .card img{
+        height:176px;
+      }
+
+      .card.one{ top:12px; left:0; }
+      .card.two{ top:80px; right:0; }
+      .card.three{ bottom:88px; left:1%; }
+      .card.four{ bottom:28px; right:0; }
+
+      .single-row{
+        margin-top:38px;
+      }
+
+      .wide-card{
+        padding:8px 8px 30px;
+      }
+
+      .important{
+        margin-top:56px;
+        padding:8px 8px 34px;
+      }
+
+      .intro-scene{
+        height:250px;
+      }
+
+      .paper-stack{
+        width:300px;
+        height:210px;
+      }
+
+      .intro-counter{
+        width:min(232px, 72vw);
+        gap:6px;
+      }
+
+      .intro-counter span{
+        padding:8px 3px 6px;
+      }
+
+      .intro-date{
+        top:calc(50% + 49px);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *, *:before, *:after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:.01ms !important;
+        scroll-behavior:auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="locked">
+  <div class="texture" aria-hidden="true"></div>
+  <div class="lines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+  <div class="float-layer" id="floatLayer" aria-hidden="true"></div>
+
+  <main class="intro" id="intro">
+    <section class="intro-scene" id="introScene" role="button" tabindex="0" aria-label="Abrir">
+      <div class="intro-shadow"></div>
+      <div class="paper-stack">
+        <div class="paper-layer back"></div>
+        <div class="paper-layer mid"></div>
+        <div class="paper-layer front"></div>
+        <div class="intro-counter" id="introCounter" aria-live="polite">
+          <span><strong id="counterDays">0</strong><small>dias</small></span>
+          <span><strong id="counterHours">0</strong><small>hrs</small></span>
+          <span><strong id="counterMinutes">0</strong><small>min</small></span>
+          <span><strong id="counterSeconds">0</strong><small>seg</small></span>
+        </div>
+        <div class="intro-date">07.06.2026</div>
+        <div class="corner"></div>
+      </div>
+    </section>
+  </main>
+
+  <audio id="music" loop preload="auto">
+    <source src="sound/musica.mp3" type="audio/mpeg">
+  </audio>
+
+  <div class="site" id="site">
+    <header class="topbar">
+      <button class="music-btn" id="musicButton" aria-label="Pausar ou tocar música" title="Música">♪</button>
+    </header>
+
+    <main class="page">
+      <section class="sheet">
+        <div class="hero">
+          <article class="text-block hidden-before-reveal">
+            <p>
+              Eu te amo muito,  é estranho porque faz muito pouco tempo, mas por algum motivo, mesmo tendo
+              sido rápido, eu não sinto que me arrependo disso, cada vez tenho mais certeza de que é incrivel
+              te amar, e cada vez eu tenho mais certeza de que eu quero e devo te amar mais, porque sei
+              que você merece isso.
+            </p>
+
+            <p>
+              Eu amo o fato de sermos parecidos em tudo, eu ja disse isso várias vezes, não é a primeira vez
+              que escrevo para ti, talvez não goste tanto, talvez não considere tanto, mas para mim, é a 
+              melhor forma que encontrei de falar algumas coisas que não sei muito bem como dizer. Você é
+              incrivel, é perfeita, eu não imaginei que algo assim escalaria para oque é agora, mas foi
+              a melhor coisa que poderia ter me acontecido.
+            </p>
+
+            <p>
+              É incrivel que gostamos das mesmas cores, mesmas musicas, mesmos jogos, mesmas piadas, falamos as
+              mesmas coisas, pensamos as mesmas coisas, e, creio eu, que sentimos a mesma coisa um pelo outro.
+              Eu te amo muito, muito mesmo, quero poder te amar todos os dias, quero poder estar com você todos
+              os dias, muito obrigado por todos esses dias juntos, eu não quero mais viver sem você.
+            </p>
+
+            <div class="quote">
+              somos incrivelmente iguais e somos incriveis igualmente
+            </div>
+          </article>
+
+          <div class="photo-stack hidden-before-reveal" aria-label="Fotos">
+            <figure class="card one">
+              <img src="img/nos1.png" alt="">
+            </figure>
+
+            <figure class="card two">
+              <img src="img/voce.png" alt="">
+            </figure>
+
+            <figure class="card three">
+              <img src="img/notas.png" alt="">
+            </figure>
+
+            <figure class="card four">
+              <img src="img/xd.png" alt="">
+            </figure>
+          </div>
+        </div>
+
+        <div class="single-row hidden-before-reveal">
+          <figure class="wide-card">
+            <img src="img/nos2.png" alt="">
+          </figure>
+        </div>
+
+        <figure class="important hidden-before-reveal">
+          <img src="img/euivc.jpg" alt="">
+        </figure>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const intro = document.getElementById("intro");
+    const introScene = document.getElementById("introScene");
+    const site = document.getElementById("site");
+    const music = document.getElementById("music");
+    const musicButton = document.getElementById("musicButton");
+    const floatLayer = document.getElementById("floatLayer");
+    const cursorGlow = document.getElementById("cursorGlow");
+    const counterDays = document.getElementById("counterDays");
+    const counterHours = document.getElementById("counterHours");
+    const counterMinutes = document.getElementById("counterMinutes");
+    const counterSeconds = document.getElementById("counterSeconds");
+
+    let opened = false;
+    let playing = false;
+
+    function createFloatingItems(){
+      const items = ["✦", "✧", "·", "♡", "x", "+"];
+      for(let i = 0; i < 22; i++){
+        const el = document.createElement("span");
+        el.className = "floaty";
+        el.textContent = items[Math.floor(Math.random() * items.length)];
+        el.style.left = `${Math.random() * 100}%`;
+        el.style.fontSize = `${Math.random() * 14 + 10}px`;
+        el.style.animationDuration = `${Math.random() * 9 + 12}s`;
+        el.style.animationDelay = `${Math.random() * 10}s`;
+        floatLayer.appendChild(el);
+      }
+    }
+
+    async function playMusic(){
+      try{
+        music.volume = 0.24;
+        await music.play();
+        playing = true;
+        musicButton.textContent = "♫";
+      } catch(error){
+        playing = false;
+        musicButton.textContent = "♪";
+      }
+    }
+
+    function pauseMusic(){
+      music.pause();
+      playing = false;
+      musicButton.textContent = "♪";
+    }
+
+
+    function updateCounter(){
+      const startDate = new Date(2026, 5, 7, 0, 0, 0);
+      const now = new Date();
+      let diff = now - startDate;
+
+      if(diff < 0){
+        diff = 0;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      counterDays.textContent = days;
+      counterHours.textContent = String(hours).padStart(2, "0");
+      counterMinutes.textContent = String(minutes).padStart(2, "0");
+      counterSeconds.textContent = String(seconds).padStart(2, "0");
+    }
+
+    function revealSite(){
+      if(opened) return;
+      opened = true;
+
+      intro.classList.add("opening");
+
+      setTimeout(() => {
+        intro.classList.add("hidden");
+        site.classList.add("visible");
+        document.body.classList.remove("locked");
+        playMusic();
+
+        setTimeout(() => {
+          document.querySelectorAll(".hidden-before-reveal").forEach((element, index) => {
+            setTimeout(() => element.classList.add("show"), index * 115);
+          });
+        }, 180);
+      }, 920);
+    }
+
+    intro.addEventListener("click", revealSite);
+
+    introScene.addEventListener("keydown", (event) => {
+      if(event.key === "Enter" || event.key === " "){
+        event.preventDefault();
+        revealSite();
+      }
+    });
+
+    musicButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+
+      if(playing){
+        pauseMusic();
+      } else {
+        playMusic();
+      }
+    });
+
+    window.addEventListener("mousemove", (event) => {
+      cursorGlow.style.left = `${event.clientX}px`;
+      cursorGlow.style.top = `${event.clientY}px`;
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          entry.target.classList.add("show");
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll(".hidden-before-reveal").forEach(element => observer.observe(element));
+
+    updateCounter();
+    setInterval(updateCounter, 1000);
+
+    createFloatingItems();
+  </script>
+</body>
+</html>
