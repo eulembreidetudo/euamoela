@@ -772,6 +772,256 @@
         scroll-behavior:auto !important;
       }
     }
+
+
+    /* =========================================================
+       24/08/2026 — versão em preto e branco
+       Mantém a estrutura original, mas transforma a paleta e
+       congela visualmente o tempo no momento em que terminou.
+       ========================================================= */
+    :root{
+      --paper:#d3d3d3;
+      --paper-light:#eeeeee;
+      --ink:#191919;
+      --line:rgba(35, 35, 35, .18);
+      --margin-line:rgba(20, 20, 20, .20);
+      --edge:rgba(15, 15, 15, .30);
+      --shadow:0 22px 65px rgba(0, 0, 0, .28);
+      --shadow-soft:0 14px 34px rgba(0, 0, 0, .22);
+      --tape:rgba(238, 238, 238, .76);
+    }
+
+    body{
+      background:
+        radial-gradient(circle at 14% 9%, rgba(255,255,255,.06), transparent 24%),
+        radial-gradient(circle at 82% 13%, rgba(255,255,255,.07), transparent 29%),
+        radial-gradient(circle at 42% 96%, rgba(255,255,255,.05), transparent 38%),
+        linear-gradient(135deg, #161616 0%, #5c5c5c 50%, #202020 100%);
+    }
+
+    ::selection{
+      color:#f3f3f3;
+      background:#111;
+    }
+
+    .texture{
+      opacity:.60;
+      background:
+        radial-gradient(circle, rgba(0,0,0,.13) 0 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255,255,255,.11) 0 1.5px, transparent 2px);
+      mix-blend-mode:normal;
+    }
+
+    .vignette{
+      background:
+        radial-gradient(circle at center, transparent 48%, rgba(0,0,0,.42) 100%),
+        linear-gradient(90deg, rgba(0,0,0,.20), transparent 12%, transparent 88%, rgba(0,0,0,.20));
+    }
+
+    .cursor-glow{
+      background:radial-gradient(circle, rgba(255,255,255,.12), transparent 70%);
+    }
+
+    .floaty{ color:rgba(255,255,255,.15); }
+
+    .intro{
+      background:
+        radial-gradient(circle at 50% 8%, rgba(255,255,255,.12), transparent 34%),
+        linear-gradient(135deg, #171717 0%, #6a6a6a 52%, #202020 100%);
+    }
+
+    .intro-shadow{ background:rgba(0,0,0,.42); }
+
+    .paper-stack{
+      filter:drop-shadow(0 24px 44px rgba(0,0,0,.34));
+    }
+
+    .paper-layer{
+      border-color:rgba(0,0,0,.30);
+      background:
+        linear-gradient(90deg, transparent 0 48px, rgba(20,20,20,.19) 49px 51px, transparent 52px),
+        repeating-linear-gradient(to bottom, rgba(238,238,238,.98) 0 30px, rgba(45,45,45,.15) 31px 32px),
+        linear-gradient(135deg, #ededed, #bcbcbc);
+      box-shadow:inset 0 0 42px rgba(0,0,0,.08);
+    }
+
+    .paper-layer.front:before,
+    .card:before,
+    .wide-card:before,
+    .wide-card:after,
+    .important:before,
+    .important:after{
+      background:rgba(235,235,235,.76);
+      border-color:rgba(0,0,0,.11);
+    }
+
+    .intro-counter{
+      color:#181818;
+      opacity:.82;
+    }
+
+    .intro-counter span{
+      background:rgba(255,255,255,.28);
+      border-color:rgba(0,0,0,.18);
+      box-shadow:inset 0 -1px 0 rgba(0,0,0,.10);
+    }
+
+    .intro-counter.ended{
+      opacity:.66;
+    }
+
+    .intro-counter.ended:after{
+      content:"";
+      position:absolute;
+      left:-13px;
+      right:-13px;
+      top:50%;
+      height:3px;
+      background:rgba(20,20,20,.82);
+      box-shadow:0 1px 0 rgba(255,255,255,.28);
+      transform:translateY(-50%) rotate(-4deg);
+      transform-origin:center;
+      z-index:8;
+      pointer-events:none;
+    }
+
+    .intro-date{
+      color:rgba(20,20,20,.72);
+      white-space:nowrap;
+      letter-spacing:.055em;
+    }
+
+    .music-btn{
+      border-color:rgba(255,255,255,.24);
+      background:rgba(35,35,35,.76);
+      color:#f0f0f0;
+      box-shadow:4px 4px 0 rgba(0,0,0,.22);
+    }
+
+    .music-btn:hover{
+      box-shadow:5px 5px 0 rgba(0,0,0,.22);
+    }
+
+    .sheet{
+      background:
+        linear-gradient(90deg, transparent 0 68px, var(--margin-line) 69px 71px, transparent 72px),
+        repeating-linear-gradient(to bottom, rgba(235,235,235,.98) 0 31px, var(--line) 32px 33px),
+        linear-gradient(135deg, #eeeeee, #bdbdbd);
+    }
+
+    .sheet:before{
+      background:
+        radial-gradient(circle at 10% 8%, rgba(0,0,0,.10), transparent 19%),
+        radial-gradient(circle at 92% 84%, rgba(0,0,0,.12), transparent 24%),
+        linear-gradient(90deg, rgba(0,0,0,.10), transparent 12%, transparent 88%, rgba(0,0,0,.10));
+      mix-blend-mode:multiply;
+    }
+
+    .sheet:after{
+      background:radial-gradient(circle, rgba(0,0,0,.24) 0 4px, transparent 4.7px);
+    }
+
+    .text-block p{ color:#292929; }
+
+    .quote{
+      color:#1d1d1d;
+      background:rgba(255,255,255,.30);
+      border-left-color:rgba(0,0,0,.44);
+      box-shadow:inset 0 -1px 0 rgba(0,0,0,.12);
+    }
+
+    .card,
+    .wide-card,
+    .important{
+      background:#dedede;
+      border-color:rgba(0,0,0,.24);
+    }
+
+    .card img,
+    .wide-card img,
+    .important img{
+      background:#bdbdbd;
+      filter:grayscale(1) contrast(1.08) brightness(.93);
+      border-color:rgba(0,0,0,.14);
+    }
+
+    /* Segunda folha: espaço reservado para o texto que será escrito depois. */
+    .page-gap{
+      height:clamp(42px, 8vw, 92px);
+    }
+
+    .final-sheet{
+      min-height:min(900px, calc(100vh - 90px));
+      display:flex;
+      align-items:flex-start;
+    }
+
+    .final-sheet:before{
+      opacity:.86;
+    }
+
+    .final-content{
+      position:relative;
+      z-index:1;
+      width:min(820px, calc(100% - 44px));
+      margin:clamp(34px, 7vw, 78px) auto 58px;
+      padding:clamp(16px, 3vw, 30px) clamp(8px, 2vw, 18px) 38px clamp(26px, 4vw, 48px);
+    }
+
+    .final-kicker{
+      margin-bottom:30px;
+      font:700 .72rem "Courier New", monospace;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(20,20,20,.55);
+    }
+
+    .final-text p{
+      margin:0 0 23px;
+      color:#262626;
+      font-size:clamp(1rem, 1.75vw, 1.12rem);
+      line-height:1.95;
+      font-weight:600;
+      text-align:justify;
+    }
+
+    .final-signoff{
+      position:relative;
+      margin-top:38px;
+      padding-top:19px;
+      font:700 .82rem "Courier New", monospace;
+      color:rgba(20,20,20,.54);
+      letter-spacing:.06em;
+    }
+
+    .final-signoff:before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:90px;
+      height:1px;
+      background:rgba(20,20,20,.42);
+    }
+
+    @media (max-width:560px){
+      .final-content{
+        width:100%;
+        margin-top:34px;
+        padding-left:10px;
+        padding-right:6px;
+      }
+
+      .final-text p{
+        text-align:left;
+        line-height:1.84;
+      }
+
+      .intro-date{
+        font-size:.64rem;
+      }
+    }
+
   </style>
 </head>
 
@@ -789,13 +1039,13 @@
         <div class="paper-layer back"></div>
         <div class="paper-layer mid"></div>
         <div class="paper-layer front"></div>
-        <div class="intro-counter" id="introCounter" aria-live="polite">
+        <div class="intro-counter ended" id="introCounter" aria-live="polite">
           <span><strong id="counterDays">0</strong><small>dias</small></span>
           <span><strong id="counterHours">0</strong><small>hrs</small></span>
           <span><strong id="counterMinutes">0</strong><small>min</small></span>
           <span><strong id="counterSeconds">0</strong><small>seg</small></span>
         </div>
-        <div class="intro-date">07.06.2026</div>
+        <div class="intro-date">02:07AM&nbsp;&nbsp;24/08/2026</div>
         <div class="corner"></div>
       </div>
     </section>
@@ -870,6 +1120,37 @@
           <img src="img/euivc.jpg" alt="">
         </figure>
       </section>
+
+
+      <div class="page-gap" aria-hidden="true"></div>
+
+      <section class="sheet final-sheet" id="ultimaPagina" aria-label="Última página">
+        <div class="final-content hidden-before-reveal">
+          <div class="final-kicker">24/08/2026</div>
+          <article class="final-text">
+            <p>
+               Eu não me arrependo por todo esse tempo. Você foi incrível e péssima ao mesmo tempo. Não queria 
+               ter acreditado em uma mentira sua, mas me sinto bem por não ter duvidado de você nenhuma vez. Eu 
+               tô escrevendo isso enquanto estamos em call. Eu queria muito chorar. Eu ainda tô escutando a  
+               música que mais me lembra você. É estranho, ouvir isso vai ser horrível daqui para frente.
+            </p>
+
+            <p>
+              Eu ainda quis fazer isso porque eu te amo. Você também fez um texto para mim, o seu, de desculpas; 
+             o meu, de amor. Eu quero tanto dizer para me esquecer, mas quero que se lembre de mim em todo e qualquer 
+             momento. Eu quero ter sido importante para você assim como você foi para mim, e eu imagino que fui.  
+             Eu nunca quis te fazer mal, mas, se fiz, peço perdão. 
+            </p>
+<br>
+            <p>
+              Éramos incrivelmente iguais e éramos incríveis igualmente.
+            </p>
+          </article>
+
+          <div class="final-signoff">24/08/2026</div>
+        </div>
+      </section>
+
     </main>
   </div>
 
@@ -923,13 +1204,10 @@
 
 
     function updateCounter(){
+      // O contador não corre mais. Ele fica preso ao instante final.
       const startDate = new Date(2026, 5, 7, 0, 0, 0);
-      const now = new Date();
-      let diff = now - startDate;
-
-      if(diff < 0){
-        diff = 0;
-      }
+      const endDate = new Date(2026, 7, 24, 2, 7, 0);
+      const diff = Math.max(0, endDate - startDate);
 
       const totalSeconds = Math.floor(diff / 1000);
       const days = Math.floor(totalSeconds / 86400);
@@ -998,7 +1276,6 @@
     document.querySelectorAll(".hidden-before-reveal").forEach(element => observer.observe(element));
 
     updateCounter();
-    setInterval(updateCounter, 1000);
 
     createFloatingItems();
   </script>
